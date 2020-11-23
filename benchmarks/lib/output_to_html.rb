@@ -41,7 +41,7 @@ EOT
    </table>
 EOT
 
-  def self.output_results( filename, results )
+  def self.output_results(filename, results)
     html = ''
     results.each do |result_set|
       columns = []
@@ -51,16 +51,16 @@ EOT
         if result.failed
           times << "failed"
         else
-          time = result.tms.real.round_to( 3 )
-          speedup = ( result_set.first.tms.real / result.tms.real ).round
+          time = result.tms.real.round_to(3)
+          speedup = (result_set.first.tms.real / result.tms.real).round
           times << (result == result_set.first ? time.to_s : "#{time} (#{speedup}x speedup)")
         end
       end
 
-      template = ERB.new( TEMPLATE, 0, "%<>")
-      html << template.result( binding )
+      template = ERB.new(TEMPLATE, 0, "%<>")
+      html << template.result(binding)
     end
 
-    File.open( filename, 'w' ) { |file| file.write( TEMPLATE_HEADER + html ) }
+    File.open(filename, 'w') { |file| file.write(TEMPLATE_HEADER + html) }
   end
 end

@@ -54,7 +54,7 @@ def should_support_sqlite_upsert_functionality
     macro(:updated_topic) { Topic.find(@topic.id) }
 
     context "with :on_duplicate_key_ignore and validation checks turned off" do
-      let(:columns) { %w( id title author_name author_email_address parent_id ) }
+      let(:columns) { %w(id title author_name author_email_address parent_id) }
       let(:values) { [[99, "Book", "John Doe", "john@doe.com", 17]] }
       let(:updated_values) { [[99, "Book - 2nd Edition", "Author Should Not Change", "johndoe@example.com", 57]] }
 
@@ -78,7 +78,7 @@ def should_support_sqlite_upsert_functionality
 
       context "using a hash" do
         context "with :columns a hash" do
-          let(:columns) { %w( id title author_name author_email_address parent_id ) }
+          let(:columns) { %w(id title author_name author_email_address parent_id) }
           let(:values) { [[99, "Book", "John Doe", "john@doe.com", 17]] }
           let(:updated_values) { [[99, "Book - 2nd Edition", "Author Should Not Change", "johndoe@example.com", 57]] }
 
@@ -124,7 +124,7 @@ def should_support_sqlite_upsert_functionality
         end
 
         context 'with :index_predicate' do
-          let(:columns) { %w( id device_id alarm_type status metadata ) }
+          let(:columns) { %w(id device_id alarm_type status metadata) }
           let(:values) { [[99, 17, 1, 1, 'foo']] }
           let(:updated_values) { [[99, 17, 1, 2, 'bar']] }
 
@@ -168,7 +168,7 @@ def should_support_sqlite_upsert_functionality
         end
 
         context 'with :condition' do
-          let(:columns) { %w( id device_id alarm_type status metadata) }
+          let(:columns) { %w(id device_id alarm_type status metadata) }
           let(:values) { [[99, 17, 1, 1, 'foo']] }
           let(:updated_values) { [[99, 17, 1, 1, 'bar']] }
 
@@ -212,7 +212,7 @@ def should_support_sqlite_upsert_functionality
         end
 
         context "with no :columns" do
-          let(:columns) { %w( id title author_name author_email_address ) }
+          let(:columns) { %w(id title author_name author_email_address) }
           let(:values) { [[100, "Book", "John Doe", "john@doe.com"]] }
           let(:updated_values) { [[100, "Title Should Not Change", "Author Should Not Change", "john@nogo.com"]] }
 

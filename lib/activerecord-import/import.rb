@@ -147,7 +147,7 @@ class ActiveRecord::Associations::CollectionAssociation
     owner_primary_key_value = owner.send(owner_primary_key)
 
     # assume array of model objects
-    if args.last.is_a?( Array ) && args.last.first.is_a?(ActiveRecord::Base)
+    if args.last.is_a?(Array) && args.last.first.is_a?(ActiveRecord::Base)
       if args.length == 2
         models = args.last
         column_names = args.first.dup
@@ -168,7 +168,7 @@ class ActiveRecord::Associations::CollectionAssociation
       return model_klass.bulk_import column_names, models, options
 
     # supports array of hash objects
-    elsif args.last.is_a?( Array ) && args.last.first.is_a?(Hash)
+    elsif args.last.is_a?(Array) && args.last.first.is_a?(Hash)
       if args.length == 2
         array_of_hashes = args.last
         column_names = args.first.dup
@@ -207,11 +207,11 @@ class ActiveRecord::Associations::CollectionAssociation
       return model_klass.bulk_import column_names, array_of_attributes, options
 
     # supports empty array
-    elsif args.last.is_a?( Array ) && args.last.empty?
+    elsif args.last.is_a?(Array) && args.last.empty?
       return ActiveRecord::Import::Result.new([], 0, [])
 
     # supports 2-element array and array
-    elsif args.size == 2 && args.first.is_a?( Array ) && args.last.is_a?( Array )
+    elsif args.size == 2 && args.first.is_a?(Array) && args.last.is_a?(Array)
       column_names, array_of_attributes = args
 
       # dup the passed args so we don't modify unintentionally
@@ -377,7 +377,7 @@ class ActiveRecord::Base
     #  # Example using column_names, array_of_value and options
     #  columns = [ :author_name, :title ]
     #  values = [ [ 'zdennis', 'test post' ], [ 'jdoe', 'another test post' ] ]
-    #  BlogPost.import( columns, values, validate: false  )
+    #  BlogPost.import(columns, values, validate: false )
     #
     #  # Example synchronizing existing instances in memory
     #  post = BlogPost.where(author_name: 'zdennis').first
@@ -524,9 +524,9 @@ class ActiveRecord::Base
     # * ids - the primary keys of the imported ids if the adapter supports it, otherwise an empty array.
     # * results - import results if the adapter supports it, otherwise an empty array.
     def bulk_import(*args)
-      if args.first.is_a?( Array ) && args.first.first.is_a?(ActiveRecord::Base)
+      if args.first.is_a?(Array) && args.first.first.is_a?(ActiveRecord::Base)
         options = {}
-        options.merge!( args.pop ) if args.last.is_a?(Hash)
+        options.merge!(args.pop) if args.last.is_a?(Hash)
 
         models = args.first
         import_helper(models, options)
@@ -540,7 +540,7 @@ class ActiveRecord::Base
     # first encountered validation error and raises ActiveRecord::RecordInvalid
     # with the failed instance.
     def bulk_import!(*args)
-      options = args.last.is_a?( Hash ) ? args.pop : {}
+      options = args.last.is_a?(Hash) ? args.pop : {}
       options[:validate] = true
       options[:raise_error] = true
 
@@ -548,9 +548,9 @@ class ActiveRecord::Base
     end
     alias import! bulk_import! unless ActiveRecord::Base.respond_to? :import!
 
-    def import_helper( *args )
+    def import_helper(*args)
       options = { validate: true, timestamps: true, track_validation_failures: false }
-      options.merge!( args.pop ) if args.last.is_a? Hash
+      options.merge!(args.pop) if args.last.is_a? Hash
       # making sure that current model's primary key is used
       options[:primary_key] = primary_key
       options[:locking_column] = locking_column if attribute_names.include?(locking_column)
@@ -559,7 +559,7 @@ class ActiveRecord::Base
       validator = ActiveRecord::Import::Validator.new(self, options)
 
       # assume array of model objects
-      if args.last.is_a?( Array ) && args.last.first.is_a?(ActiveRecord::Base)
+      if args.last.is_a?(Array) && args.last.first.is_a?(ActiveRecord::Base)
         if args.length == 2
           models = args.last
           column_names = args.first.dup
@@ -611,7 +611,7 @@ class ActiveRecord::Base
           end
         end
         # supports array of hash objects
-      elsif args.last.is_a?( Array ) && args.last.first.is_a?(Hash)
+      elsif args.last.is_a?(Array) && args.last.first.is_a?(Hash)
         if args.length == 2
           array_of_hashes = args.last
           column_names = args.first.dup
@@ -632,10 +632,10 @@ class ActiveRecord::Base
           end
         end
         # supports empty array
-      elsif args.last.is_a?( Array ) && args.last.empty?
+      elsif args.last.is_a?(Array) && args.last.empty?
         return ActiveRecord::Import::Result.new([], 0, [], [])
         # supports 2-element array and array
-      elsif args.size == 2 && args.first.is_a?( Array ) && args.last.is_a?( Array )
+      elsif args.size == 2 && args.first.is_a?(Array) && args.last.is_a?(Array)
 
         unless args.last.first.is_a?(Array)
           raise ArgumentError, "Last argument should be a two dimensional array '[[]]'. First element in array was a #{args.last.first.class}"
@@ -695,12 +695,12 @@ class ActiveRecord::Base
       end
 
       return_obj = if is_validating
-        import_with_validations( column_names, array_of_attributes, options ) do |failed_instances|
+        import_with_validations(column_names, array_of_attributes, options) do |failed_instances|
           if models
             models.each { |m| failed_instances << m if m.errors.any? }
           else
             # create instances for each of our column/value sets
-            arr = validations_array_for_column_names_and_attributes( column_names, array_of_attributes )
+            arr = validations_array_for_column_names_and_attributes(column_names, array_of_attributes)
 
             # keep track of the instance and the position it is currently at. if this fails
             # validation we'll use the index to remove it from the array_of_attributes
@@ -716,18 +716,18 @@ class ActiveRecord::Base
               array_of_attributes[i] = nil
               failure = model.dup
               failure.errors.send(:initialize_dup, model.errors)
-              failed_instances << (options[:track_validation_failures] ? [i, failure] : failure )
+              failed_instances << (options[:track_validation_failures] ? [i, failure] : failure)
             end
             array_of_attributes.compact!
           end
         end
       else
-        import_without_validations_or_callbacks( column_names, array_of_attributes, options )
+        import_without_validations_or_callbacks(column_names, array_of_attributes, options)
       end
 
       if options[:synchronize]
         sync_keys = options[:synchronize_keys] || Array(primary_key)
-        synchronize( options[:synchronize], sync_keys)
+        synchronize(options[:synchronize], sync_keys)
       end
       return_obj.num_inserts = 0 if return_obj.num_inserts.nil?
 
@@ -749,7 +749,7 @@ class ActiveRecord::Base
     # +num_inserts+ is the number of inserts it took to import the data. See
     # ActiveRecord::Base.import for more information on
     # +column_names+, +array_of_attributes+ and +options+.
-    def import_with_validations( column_names, array_of_attributes, options = {} )
+    def import_with_validations(column_names, array_of_attributes, options = {})
       failed_instances = []
 
       yield failed_instances if block_given?
@@ -757,7 +757,7 @@ class ActiveRecord::Base
       result = if options[:all_or_none] && failed_instances.any?
         ActiveRecord::Import::Result.new([], 0, [], [])
       else
-        import_without_validations_or_callbacks( column_names, array_of_attributes, options )
+        import_without_validations_or_callbacks(column_names, array_of_attributes, options)
       end
       ActiveRecord::Import::Result.new(failed_instances, result.num_inserts, result.ids, result.results)
     end
@@ -768,7 +768,7 @@ class ActiveRecord::Base
     # validations or callbacks. See ActiveRecord::Base.import for more
     # information on +column_names+, +array_of_attributes_ and
     # +options+.
-    def import_without_validations_or_callbacks( column_names, array_of_attributes, options = {} )
+    def import_without_validations_or_callbacks(column_names, array_of_attributes, options = {})
       return ActiveRecord::Import::Result.new([], 0, [], []) if array_of_attributes.empty?
 
       column_names = column_names.map(&:to_sym)
@@ -796,7 +796,7 @@ class ActiveRecord::Base
       end
 
       columns_sql = "(#{column_names.map { |name| connection.quote_column_name(name) }.join(',')})"
-      pre_sql_statements = connection.pre_sql_statements( options )
+      pre_sql_statements = connection.pre_sql_statements(options)
       insert_sql = ['INSERT', pre_sql_statements, "INTO #{quoted_table_name} #{columns_sql} VALUES"]
       insert_sql = insert_sql.flatten.join(' ')
       values_sql = values_sql_for_columns_and_attributes(columns, array_of_attributes)
@@ -806,15 +806,15 @@ class ActiveRecord::Base
       results = []
       if supports_import?
         # generate the sql
-        post_sql_statements = connection.post_sql_statements( quoted_table_name, options )
+        post_sql_statements = connection.post_sql_statements(quoted_table_name, options)
 
         batch_size = options[:batch_size] || values_sql.size
         values_sql.each_slice(batch_size) do |batch_values|
           # perform the inserts
-          result = connection.insert_many( [insert_sql, post_sql_statements].flatten,
+          result = connection.insert_many([insert_sql, post_sql_statements].flatten,
             batch_values,
             options,
-            "#{model_name} Create Many" )
+            "#{model_name} Create Many")
           number_inserted += result.num_inserts
           ids += result.ids
           results += result.results
@@ -999,7 +999,7 @@ class ActiveRecord::Base
       end
     end
 
-    def add_special_rails_stamps( column_names, array_of_attributes, options )
+    def add_special_rails_stamps(column_names, array_of_attributes, options)
       timestamp_columns = {}
       timestamps        = {}
 
@@ -1039,7 +1039,7 @@ class ActiveRecord::Base
     end
 
     # Returns an Array of Hashes for the passed in +column_names+ and +array_of_attributes+.
-    def validations_array_for_column_names_and_attributes( column_names, array_of_attributes ) # :nodoc:
+    def validations_array_for_column_names_and_attributes(column_names, array_of_attributes) # :nodoc:
       array_of_attributes.map { |values| Hash[column_names.zip(values)] }
     end
 

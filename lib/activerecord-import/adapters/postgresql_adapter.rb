@@ -6,29 +6,29 @@ module ActiveRecord::Import::PostgreSQLAdapter
 
   MIN_VERSION_FOR_UPSERT = 90_500
 
-  def insert_many( sql, values, options = {}, *args ) # :nodoc:
+  def insert_many(sql, values, options = {}, *args) # :nodoc:
     number_of_inserts = 1
     returned_values = []
     ids = []
     results = []
 
-    base_sql, post_sql = if sql.is_a?( String )
+    base_sql, post_sql = if sql.is_a?(String)
       [sql, '']
-    elsif sql.is_a?( Array )
-      [sql.shift, sql.join( ' ' )]
+    elsif sql.is_a?(Array)
+      [sql.shift, sql.join(' ')]
     end
 
-    sql2insert = [base_sql, values.join( ',' ), post_sql].join(" ")
+    sql2insert = [base_sql, values.join(','), post_sql].join(" ")
 
     columns = returning_columns(options)
     if columns.blank? || (options[:no_returning] && !options[:recursive])
-      insert( sql2insert, *args )
+      insert(sql2insert, *args)
     else
       returned_values = if columns.size > 1
         # Select composite columns
-        select_rows( sql2insert, *args )
+        select_rows(sql2insert, *args)
       else
-        select_values( sql2insert, *args )
+        select_values(sql2insert, *args)
       end
       query_cache.clear if query_cache_enabled
     end
@@ -67,13 +67,13 @@ module ActiveRecord::Import::PostgreSQLAdapter
     %{nextval('#{sequence_name}')}
   end
 
-  def post_sql_statements( table_name, options ) # :nodoc:
+  def post_sql_statements(table_name, options) # :nodoc:
     sql = []
 
     if supports_on_duplicate_key_update?
       # Options :recursive and :on_duplicate_key_ignore are mutually exclusive
       if (options[:ignore] || options[:on_duplicate_key_ignore]) && !options[:on_duplicate_key_update] && !options[:recursive]
-        sql << sql_for_on_duplicate_key_ignore( table_name, options[:on_duplicate_key_ignore] )
+        sql << sql_for_on_duplicate_key_ignore(table_name, options[:on_duplicate_key_ignore])
       end
     elsif logger && options[:on_duplicate_key_ignore] && !options[:on_duplicate_key_update]
       logger.warn "Ignoring on_duplicate_key_ignore because it is not supported by the database."
@@ -97,57 +97,57 @@ module ActiveRecord::Import::PostgreSQLAdapter
   end
 
   # Add a column to be updated on duplicate key update
-  def add_column_for_on_duplicate_key_update( column, options = {} ) # :nodoc:
+  def add_column_for_on_duplicate_key_update(column, options = {}) # :nodoc:
     arg = options[:on_duplicate_key_update]
-    if arg.is_a?( Hash )
-      columns = arg.fetch( :columns ) { arg[:columns] = [] }
+    if arg.is_a?(Hash)
+      columns = arg.fetch(:columns) { arg[:columns] = [] }
       case columns
-      when Array then columns << column.to_sym unless columns.include?( column.to_sym )
+      when Array then columns << column.to_sym unless columns.include?(column.to_sym)
       when Hash then columns[column.to_sym] = column.to_sym
       end
-    elsif arg.is_a?( Array )
-      arg << column.to_sym unless arg.include?( column.to_sym )
+    elsif arg.is_a?(Array)
+      arg << column.to_sym unless arg.include?(column.to_sym)
     end
   end
 
   # Returns a generated ON CONFLICT DO NOTHING statement given the passed
   # in +args+.
-  def sql_for_on_duplicate_key_ignore( table_name, *args ) # :nodoc:
+  def sql_for_on_duplicate_key_ignore(table_name, *args) # :nodoc:
     arg = args.first
-    conflict_target = sql_for_conflict_target( arg ) if arg.is_a?( Hash )
+    conflict_target = sql_for_conflict_target(arg) if arg.is_a?(Hash)
     "ON CONFLICT #{conflict_target} DO NOTHING"
   end
 
   # Returns a generated ON CONFLICT DO UPDATE statement given the passed
   # in +args+.
-  def sql_for_on_duplicate_key_update( table_name, *args ) # :nodoc:
+  def sql_for_on_duplicate_key_update(table_name, *args) # :nodoc:
     arg, primary_key, locking_column = args
-    arg = { columns: arg } if arg.is_a?( Array ) || arg.is_a?( String )
-    return unless arg.is_a?( Hash )
+    arg = { columns: arg } if arg.is_a?(Array) || arg.is_a?(String)
+    return unless arg.is_a?(Hash)
 
     sql = ["ON CONFLICT"]
-    conflict_target = sql_for_conflict_target( arg )
+    conflict_target = sql_for_conflict_target(arg)
 
-    columns = arg.fetch( :columns, [] )
+    columns = arg.fetch(:columns, [])
     condition = arg[:condition]
-    if columns.respond_to?( :empty? ) && columns.empty?
+    if columns.respond_to?(:empty?) && columns.empty?
       sql << conflict_target
       sql << "DO NOTHING"
       return sql.join(" ")
     end
 
-    conflict_target ||= sql_for_default_conflict_target( table_name, primary_key )
+    conflict_target ||= sql_for_default_conflict_target(table_name, primary_key)
     unless conflict_target
       raise ArgumentError, 'Expected :conflict_target or :constraint_name to be specified'
     end
 
     sql << conflict_target
     sql << "DO UPDATE SET"
-    if columns.is_a?( Array )
-      sql << sql_for_on_duplicate_key_update_as_array( table_name, locking_column, columns )
-    elsif columns.is_a?( Hash )
-      sql << sql_for_on_duplicate_key_update_as_hash( table_name, locking_column, columns )
-    elsif columns.is_a?( String )
+    if columns.is_a?(Array)
+      sql << sql_for_on_duplicate_key_update_as_array(table_name, locking_column, columns)
+    elsif columns.is_a?(Hash)
+      sql << sql_for_on_duplicate_key_update_as_hash(table_name, locking_column, columns)
+    elsif columns.is_a?(String)
       sql << columns
     else
       raise ArgumentError, 'Expected :columns to be an Array or Hash'
@@ -158,26 +158,26 @@ module ActiveRecord::Import::PostgreSQLAdapter
     sql.join(" ")
   end
 
-  def sql_for_on_duplicate_key_update_as_array( table_name, locking_column, arr ) # :nodoc:
+  def sql_for_on_duplicate_key_update_as_array(table_name, locking_column, arr) # :nodoc:
     results = arr.map do |column|
-      qc = quote_column_name( column )
+      qc = quote_column_name(column)
       "#{qc}=EXCLUDED.#{qc}"
     end
     increment_locking_column!(table_name, results, locking_column)
-    results.join( ',' )
+    results.join(',')
   end
 
-  def sql_for_on_duplicate_key_update_as_hash( table_name, locking_column, hsh ) # :nodoc:
+  def sql_for_on_duplicate_key_update_as_hash(table_name, locking_column, hsh) # :nodoc:
     results = hsh.map do |column1, column2|
-      qc1 = quote_column_name( column1 )
-      qc2 = quote_column_name( column2 )
+      qc1 = quote_column_name(column1)
+      qc2 = quote_column_name(column2)
       "#{qc1}=EXCLUDED.#{qc2}"
     end
     increment_locking_column!(table_name, results, locking_column)
-    results.join( ',' )
+    results.join(',')
   end
 
-  def sql_for_conflict_target( args = {} )
+  def sql_for_conflict_target(args = {})
     constraint_name = args[:constraint_name]
     conflict_target = args[:conflict_target]
     index_predicate = args[:index_predicate]
@@ -186,7 +186,7 @@ module ActiveRecord::Import::PostgreSQLAdapter
     elsif conflict_target.present?
       sql = [
         "(",
-        Array( conflict_target ).reject( &:blank? ).join( ', ' ),
+        Array(conflict_target).reject(&:blank?).join(', '),
         ")"
       ]
 
@@ -196,7 +196,7 @@ module ActiveRecord::Import::PostgreSQLAdapter
     end
   end
 
-  def sql_for_default_conflict_target( table_name, primary_key )
+  def sql_for_default_conflict_target(table_name, primary_key)
     conflict_target = Array(primary_key).join(', ')
     "(#{conflict_target})" if conflict_target.present?
   end

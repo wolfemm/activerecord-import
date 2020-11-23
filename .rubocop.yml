@@ -36,9 +36,6 @@ Style/Documentation:
 Style/ElseAlignment:
   Enabled: false
 
-Style/SpaceInsideParens:
-  Enabled: false
-
 Style/SpecialGlobalVars:
   Enabled: false
 

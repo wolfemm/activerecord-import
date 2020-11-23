@@ -6,17 +6,17 @@ module ActiveRecord::Import::AbstractAdapter
       %(#{sequence_name}.nextval)
     end
 
-    def insert_many( sql, values, _options = {}, *args ) # :nodoc:
+    def insert_many(sql, values, _options = {}, *args) # :nodoc:
       number_of_inserts = 1
 
-      base_sql, post_sql = if sql.is_a?( String )
+      base_sql, post_sql = if sql.is_a?(String)
         [sql, '']
-      elsif sql.is_a?( Array )
-        [sql.shift, sql.join( ' ' )]
+      elsif sql.is_a?(Array)
+        [sql.shift, sql.join(' ')]
       end
 
-      sql2insert = [base_sql, values.join( ',' ), post_sql].join
-      insert( sql2insert, *args )
+      sql2insert = [base_sql, values.join(','), post_sql].join
+      insert(sql2insert, *args)
 
       ActiveRecord::Import::Result.new([], number_of_inserts, [], [])
     end
@@ -38,16 +38,16 @@ module ActiveRecord::Import::AbstractAdapter
 
     # Synchronizes the passed in ActiveRecord instances with the records in
     # the database by calling +reload+ on each instance.
-    def after_import_synchronize( instances )
+    def after_import_synchronize(instances)
       instances.each(&:reload)
     end
 
     # Returns an array of post SQL statements given the passed in options.
-    def post_sql_statements( table_name, options ) # :nodoc:
+    def post_sql_statements(table_name, options) # :nodoc:
       post_sql_statements = []
 
       if supports_on_duplicate_key_update? && options[:on_duplicate_key_update]
-        post_sql_statements << sql_for_on_duplicate_key_update( table_name, options[:on_duplicate_key_update], options[:primary_key], options[:locking_column] )
+        post_sql_statements << sql_for_on_duplicate_key_update(table_name, options[:on_duplicate_key_update], options[:primary_key], options[:locking_column])
       elsif logger && options[:on_duplicate_key_update]
         logger.warn "Ignoring on_duplicate_key_update because it is not supported by the database."
       end

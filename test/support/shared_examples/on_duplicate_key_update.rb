@@ -226,7 +226,7 @@ def should_support_basic_on_duplicate_key_update
 
     context "with :on_duplicate_key_update" do
       describe 'using :all' do
-        let(:columns) { %w( id title author_name author_email_address parent_id ) }
+        let(:columns) { %w(id title author_name author_email_address parent_id) }
         let(:updated_values) { [[99, "Book - 2nd Edition", "Jane Doe", "janedoe@example.com", 57]] }
 
         macro(:perform_import) do |*opts|
@@ -286,7 +286,7 @@ def should_support_basic_on_duplicate_key_update
           should_update_updated_at_on_timestamp_columns
         end
 
-        let(:columns) { %w( id title author_name author_email_address parent_id ) }
+        let(:columns) { %w(id title author_name author_email_address parent_id) }
         let(:values) { [[99, "Book", "John Doe", "john@doe.com", 17]] }
         let(:updated_values) { [[99, "Book - 2nd Edition", "Author Should Not Change", "johndoe@example.com", 57]] }
 
@@ -356,7 +356,7 @@ def should_support_basic_on_duplicate_key_update
     end
 
     context "with :on_duplicate_key_update turned off" do
-      let(:columns) { %w( id title author_name author_email_address parent_id ) }
+      let(:columns) { %w(id title author_name author_email_address parent_id) }
       let(:values) { [[100, "Book", "John Doe", "john@doe.com", 17]] }
       let(:updated_values) { [[100, "Book - 2nd Edition", "This should raise an exception", "john@nogo.com", 57]] }
 

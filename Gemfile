@@ -18,7 +18,7 @@ end
 
 # Database Adapters
 platforms :ruby do
-  gem "mysql2",                 "~> #{mysql2_version}"
+  # gem "mysql2",                 "~> #{mysql2_version}"
   gem "pg",                     "~> 0.9"
   gem "sqlite3",                "~> #{sqlite3_version}"
   gem "seamless_database_pool", "~> 1.0.20"

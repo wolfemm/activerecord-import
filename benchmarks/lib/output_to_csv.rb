@@ -3,8 +3,8 @@
 require 'csv'
 
 module OutputToCSV
-  def self.output_results( filename, results )
-    CSV.open( filename, 'w' ) do |csv|
+  def self.output_results(filename, results)
+    CSV.open(filename, 'w') do |csv|
       # Iterate over each result set, which contains many results
       results.each do |result_set|
         columns = []

@@ -9,10 +9,10 @@ class BenchmarkBase
   # == PARAMETERS
   #  * table_types - an array of table types to benchmark
   #  * num - the number of record insertions to test
-  def benchmark( table_types, num )
-    array_of_cols_and_vals = build_array_of_cols_and_vals( num )
+  def benchmark(table_types, num)
+    array_of_cols_and_vals = build_array_of_cols_and_vals(num)
     table_types.each do |table_type|
-      send( "benchmark_#{table_type}", array_of_cols_and_vals )
+      send("benchmark_#{table_type}", array_of_cols_and_vals)
     end
   end
 
@@ -27,7 +27,7 @@ class BenchmarkBase
   # An OpenStruct object with the following attributes:
   #   * description - the description of the benchmark ran
   #   * tms - a Benchmark::Tms containing the results of the benchmark
-  def bm( description )
+  def bm(description)
     tms = nil
     puts "Benchmarking #{description}"
 
@@ -47,7 +47,7 @@ class BenchmarkBase
   #
   # == RETURNS
   #  returns true
-  def bm_model( model_clazz, array_of_cols_and_vals )
+  def bm_model(model_clazz, array_of_cols_and_vals)
     puts
     puts "------ Benchmarking #{model_clazz.name} -------"
 
@@ -59,17 +59,17 @@ class BenchmarkBase
     @results << group
 
     description = "#{model_clazz.name}.create (#{num_inserts} records)"
-    group << bm( description ) do
+    group << bm(description) do
       vals.each do |values|
-        model_clazz.create create_hash_for_cols_and_vals( cols, values )
+        model_clazz.create create_hash_for_cols_and_vals(cols, values)
       end
     end
 
     description = "#{model_clazz.name}.import(column, values) for #{num_inserts} records with validations"
-    group << bm( description ) { model_clazz.import cols, vals, validate: true }
+    group << bm(description) { model_clazz.import cols, vals, validate: true }
 
     description = "#{model_clazz.name}.import(columns, values) for #{num_inserts} records without validations"
-    group << bm( description ) { model_clazz.import cols, vals, validate: false }
+    group << bm(description) { model_clazz.import cols, vals, validate: false }
 
     models = []
     array_of_attrs = []
@@ -81,10 +81,10 @@ class BenchmarkBase
     array_of_attrs.each { |attrs| models << model_clazz.new(attrs) }
 
     description = "#{model_clazz.name}.import(models) for #{num_inserts} records with validations"
-    group << bm( description ) { model_clazz.import models, validate: true }
+    group << bm(description) { model_clazz.import models, validate: true }
 
     description = "#{model_clazz.name}.import(models) for #{num_inserts} records without validations"
-    group << bm( description ) { model_clazz.import models, validate: false }
+    group << bm(description) { model_clazz.import models, validate: false }
 
     true
   end
@@ -104,7 +104,7 @@ class BenchmarkBase
   #
   # == PARAMETER
   #  * num - the number of records to create
-  def build_array_of_cols_and_vals( num )
+  def build_array_of_cols_and_vals(num)
     cols = [:my_name, :description]
     value_sets = []
     num.times { |i| value_sets << ["My Name #{i}", "My Description #{i}"] }
@@ -117,17 +117,17 @@ class BenchmarkBase
   # Example:
   #   cols = [ 'id', 'name', 'description' ]
   #   values = [ 1, 'John Doe', 'A plumber' ]
-  #   hsh = create_hash_for_cols_and_vals( cols, values )
+  #   hsh = create_hash_for_cols_and_vals(cols, values)
   #   # hsh => { 'id'=>1, 'name'=>'John Doe', 'description'=>'A plumber' }
-  def create_hash_for_cols_and_vals( cols, vals )
+  def create_hash_for_cols_and_vals(cols, vals)
     h = {}
-    cols.zip( vals ) { |col, val| h[col] = val }
+    cols.zip(vals) { |col, val| h[col] = val }
     h
   end
 
   # Deletes all records from all ActiveRecord subclasses
   def delete_all
-    ActiveRecord::Base.send( :subclasses ).each do |subclass|
+    ActiveRecord::Base.send(:subclasses).each do |subclass|
       if subclass.table_exists? && subclass.respond_to?(:delete_all)
         subclass.delete_all
       end

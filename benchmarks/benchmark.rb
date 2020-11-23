@@ -13,10 +13,10 @@ $LOAD_PATH.unshift('.')
 $LOAD_PATH.unshift(File.join(benchmark_dir, '..', 'lib'))
 
 # Load the benchmark files
-Dir[File.join( benchmark_dir, 'lib', '*.rb' )].sort.each { |f| require f }
+Dir[File.join(benchmark_dir, 'lib', '*.rb')].sort.each { |f| require f }
 
 # Parse the options passed in via the command line
-options = BenchmarkOptionParser.parse( ARGV )
+options = BenchmarkOptionParser.parse(ARGV)
 
 FileUtils.mkdir_p 'log'
 ActiveRecord::Base.configurations["test"] = YAML.load_file(File.join(benchmark_dir, "../test/database.yml"))[options.adapter]
@@ -39,7 +39,7 @@ require adapter_schema if File.exist?(adapter_schema)
 
 Dir[File.join(File.dirname(__FILE__), "models/*.rb")].each { |file| require file }
 
-require File.join( benchmark_dir, 'lib', "#{options.adapter}_benchmark" )
+require File.join(benchmark_dir, 'lib', "#{options.adapter}_benchmark")
 
 table_types = nil
 table_types = if options.benchmark_all_types
@@ -50,19 +50,19 @@ end
 
 letter = options.adapter[0].chr
 clazz_str = letter.upcase + options.adapter[1..-1].downcase
-clazz = Object.const_get( "#{clazz_str}Benchmark" )
+clazz = Object.const_get("#{clazz_str}Benchmark")
 
 benchmarks = []
 options.number_of_objects.each do |num|
   benchmarks << (benchmark = clazz.new)
-  benchmark.send( "benchmark", table_types, num )
+  benchmark.send("benchmark", table_types, num)
 end
 
 options.outputs.each do |output|
   format = output.format.downcase
-  output_module = Object.const_get( "OutputTo#{format.upcase}" )
+  output_module = Object.const_get("OutputTo#{format.upcase}")
   benchmarks.each do |benchmark|
-    output_module.output_results( output.filename, benchmark.results )
+    output_module.output_results(output.filename, benchmark.results)
   end
 end
 
