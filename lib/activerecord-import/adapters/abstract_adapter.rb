@@ -9,11 +9,13 @@ module ActiveRecord::Import::AbstractAdapter
     def insert_many(sql, values, _options = {}, *args) # :nodoc:
       number_of_inserts = 1
 
-      base_sql, post_sql = if sql.is_a?(String)
-        [sql, '']
-      elsif sql.is_a?(Array)
-        [sql.shift, sql.join(' ')]
-      end
+      base_sql, post_sql =
+        case sql
+        when String
+          [sql, '']
+        when Array
+          [sql.shift, sql.join(' ')]
+        end
 
       sql2insert = [base_sql, values.join(','), post_sql].join
       insert(sql2insert, *args)

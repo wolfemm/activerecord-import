@@ -73,11 +73,13 @@ module ActiveRecord::Import::MysqlAdapter
 
   # Add a column to be updated on duplicate key update
   def add_column_for_on_duplicate_key_update(column, options = {}) # :nodoc:
-    if (columns = options[:on_duplicate_key_update])
-      case columns
-      when Array then columns << column.to_sym unless columns.include?(column.to_sym)
-      when Hash then columns[column.to_sym] = column.to_sym
-      end
+    return unless (columns = options[:on_duplicate_key_update])
+
+    case columns
+    when Array
+      columns << column.to_sym unless columns.include?(column.to_sym)
+    when Hash
+      columns[column.to_sym] = column.to_sym
     end
   end
 
@@ -88,15 +90,17 @@ module ActiveRecord::Import::MysqlAdapter
     arg = args.first
     locking_column = args.last
 
-    if arg.is_a?(Array)
-      sql << sql_for_on_duplicate_key_update_as_array(table_name, locking_column, arg)
-    elsif arg.is_a?(Hash)
-      sql << sql_for_on_duplicate_key_update_as_hash(table_name, locking_column, arg)
-    elsif arg.is_a?(String)
-      sql << arg
-    else
-      raise ArgumentError, "Expected Array or Hash"
-    end
+    sql <<
+      case arg
+      when Array
+        sql_for_on_duplicate_key_update_as_array(table_name, locking_column, arg)
+      when Hash
+        sql_for_on_duplicate_key_update_as_hash(table_name, locking_column, arg)
+      when String
+        arg
+      else
+        raise ArgumentError, "Expected Array or Hash"
+      end
 
     sql.join(" ")
   end
