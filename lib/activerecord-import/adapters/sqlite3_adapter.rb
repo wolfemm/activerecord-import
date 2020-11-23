@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveRecord::Import::SQLite3Adapter
   include ActiveRecord::Import::ImportSupport
   include ActiveRecord::Import::OnDuplicateKeyUpdateSupport
@@ -97,13 +99,14 @@ module ActiveRecord::Import::SQLite3Adapter
     arg = { columns: arg } if arg.is_a?( Array ) || arg.is_a?( String )
     return unless arg.is_a?( Hash )
 
-    sql = ' ON CONFLICT '
+    sql = [' ON CONFLICT ']
     conflict_target = sql_for_conflict_target( arg )
 
     columns = arg.fetch( :columns, [] )
     condition = arg[:condition]
     if columns.respond_to?( :empty? ) && columns.empty?
-      return sql << "#{conflict_target}DO NOTHING"
+      sql << "#{conflict_target}DO NOTHING"
+      return sql.join
     end
 
     conflict_target ||= sql_for_default_conflict_target( primary_key )
@@ -124,7 +127,7 @@ module ActiveRecord::Import::SQLite3Adapter
 
     sql << " WHERE #{condition}" if condition.present?
 
-    sql
+    sql.join
   end
 
   def sql_for_on_duplicate_key_update_as_array( table_name, locking_column, arr ) # :nodoc:
@@ -150,9 +153,15 @@ module ActiveRecord::Import::SQLite3Adapter
     conflict_target = args[:conflict_target]
     index_predicate = args[:index_predicate]
     if conflict_target.present?
-      '(' << Array( conflict_target ).reject( &:blank? ).join( ', ' ) << ') '.tap do |sql|
-        sql << "WHERE #{index_predicate} " if index_predicate
-      end
+      sql = [
+        "(",
+        Array( conflict_target ).reject( &:blank? ).join( ', ' )
+        ")"
+      ]
+
+      sql << "WHERE #{index_predicate} " if index_predicate
+
+      sql.join
     end
   end
 

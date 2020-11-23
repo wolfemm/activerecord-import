@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveRecord::Import
   class ValueSetTooLargeError < StandardError
     attr_reader :size

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # encoding: UTF-8
 def should_support_mysql_import_functionality
   # Forcefully disable strict mode for this session.

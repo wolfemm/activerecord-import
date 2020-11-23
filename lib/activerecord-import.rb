@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rubocop:disable Style/FileName
 require "active_support/lazy_load_hooks"
 

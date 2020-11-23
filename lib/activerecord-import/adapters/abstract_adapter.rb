@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveRecord::Import::AbstractAdapter
   module InstanceMethods
     def next_value_for_sequence(sequence_name)
@@ -13,7 +15,7 @@ module ActiveRecord::Import::AbstractAdapter
         [sql.shift, sql.join( ' ' )]
       end
 
-      sql2insert = base_sql + values.join( ',' ) + post_sql
+      sql2insert = [base_sql, values.join( ',' ), post_sql].join
       insert( sql2insert, *args )
 
       ActiveRecord::Import::Result.new([], number_of_inserts, [], [])

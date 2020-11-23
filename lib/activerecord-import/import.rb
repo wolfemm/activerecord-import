@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ostruct"
 
 module ActiveRecord::Import::ConnectionAdapters; end
@@ -841,7 +843,7 @@ class ActiveRecord::Base
           model.id = id
 
           timestamps.each do |attr, value|
-            model.send(attr + "=", value)
+            model.send("#{attr}=", value)
           end
         end
       end

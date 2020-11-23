@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveRecord::Import::MysqlAdapter
   include ActiveRecord::Import::ImportSupport
   include ActiveRecord::Import::OnDuplicateKeyUpdateSupport
@@ -33,7 +35,7 @@ module ActiveRecord::Import::MysqlAdapter
     # if we can insert it all as one statement
     if NO_MAX_PACKET == max || total_bytes <= max || options[:force_single_insert]
       number_of_inserts += 1
-      sql2insert = base_sql + values.join( ',' ) + post_sql
+      sql2insert = [base_sql, values.join( ',' ), post_sql].join
       insert( sql2insert, *args )
     else
       value_sets = ::ActiveRecord::Import::ValueSetsBytesParser.parse(values,
@@ -43,7 +45,7 @@ module ActiveRecord::Import::MysqlAdapter
       transaction(requires_new: true) do
         value_sets.each do |value_set|
           number_of_inserts += 1
-          sql2insert = base_sql + value_set.join( ',' ) + post_sql
+          sql2insert = [base_sql, value_set.join( ',' ), post_sql].join
           insert( sql2insert, *args )
         end
       end
@@ -82,9 +84,10 @@ module ActiveRecord::Import::MysqlAdapter
   # Returns a generated ON DUPLICATE KEY UPDATE statement given the passed
   # in +args+.
   def sql_for_on_duplicate_key_update( table_name, *args ) # :nodoc:
-    sql = ' ON DUPLICATE KEY UPDATE '
+    sql = [' ON DUPLICATE KEY UPDATE ']
     arg = args.first
     locking_column = args.last
+
     if arg.is_a?( Array )
       sql << sql_for_on_duplicate_key_update_as_array( table_name, locking_column, arg )
     elsif arg.is_a?( Hash )
@@ -94,7 +97,8 @@ module ActiveRecord::Import::MysqlAdapter
     else
       raise ArgumentError, "Expected Array or Hash"
     end
-    sql
+
+    sql.join
   end
 
   def sql_for_on_duplicate_key_update_as_array( table_name, locking_column, arr ) # :nodoc:

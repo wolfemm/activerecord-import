@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ActiveSupport::TestCase
   def Build(*args) # rubocop:disable Style/MethodName
     n = args.shift if args.first.is_a?(Numeric)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # encoding: UTF-8
 def should_support_postgresql_import_functionality
   should_support_recursive_import
@@ -281,7 +283,7 @@ def should_support_postgresql_import_functionality
   end
 
   describe "with binary field" do
-    let(:binary_value) { "\xE0'c\xB2\xB0\xB3Bh\\\xC2M\xB1m\\I\xC4r".force_encoding('ASCII-8BIT') }
+    let(:binary_value) { String.new("\xE0'c\xB2\xB0\xB3Bh\\\xC2M\xB1m\\I\xC4r", encoding: "ASCII-8BIT") }
     it "imports the correct values for binary fields" do
       alarms = [Alarm.new(device_id: 1, alarm_type: 1, status: 1, secret_key: binary_value)]
       assert_difference "Alarm.count", +1 do
