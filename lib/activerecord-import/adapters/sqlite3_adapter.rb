@@ -157,7 +157,7 @@ module ActiveRecord::Import::SQLite3Adapter
     if conflict_target.present?
       sql = [
         "(",
-        Array( conflict_target ).reject( &:blank? ).join( ', ' )
+        Array( conflict_target ).reject( &:blank? ).join( ', ' ),
         ")"
       ]
 
