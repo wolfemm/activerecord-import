@@ -89,7 +89,7 @@ module ActiveRecord::Import::SQLite3Adapter
   def sql_for_on_duplicate_key_ignore( *args ) # :nodoc:
     arg = args.first
     conflict_target = sql_for_conflict_target( arg ) if arg.is_a?( Hash )
-    " ON CONFLICT #{conflict_target}DO NOTHING"
+    "ON CONFLICT #{conflict_target} DO NOTHING"
   end
 
   # Returns a generated ON CONFLICT DO UPDATE statement given the passed
@@ -99,14 +99,15 @@ module ActiveRecord::Import::SQLite3Adapter
     arg = { columns: arg } if arg.is_a?( Array ) || arg.is_a?( String )
     return unless arg.is_a?( Hash )
 
-    sql = [' ON CONFLICT ']
+    sql = ["ON CONFLICT"]
     conflict_target = sql_for_conflict_target( arg )
 
     columns = arg.fetch( :columns, [] )
     condition = arg[:condition]
     if columns.respond_to?( :empty? ) && columns.empty?
-      sql << "#{conflict_target}DO NOTHING"
-      return sql.join
+      sql << conflict_target
+      sql << "DO NOTHING"
+      return sql.join(" ")
     end
 
     conflict_target ||= sql_for_default_conflict_target( primary_key )
@@ -114,7 +115,8 @@ module ActiveRecord::Import::SQLite3Adapter
       raise ArgumentError, 'Expected :conflict_target to be specified'
     end
 
-    sql << "#{conflict_target}DO UPDATE SET "
+    sql << conflict_target
+    sql << "DO UPDATE SET"
     if columns.is_a?( Array )
       sql << sql_for_on_duplicate_key_update_as_array( table_name, locking_column, columns )
     elsif columns.is_a?( Hash )
@@ -125,9 +127,9 @@ module ActiveRecord::Import::SQLite3Adapter
       raise ArgumentError, 'Expected :columns to be an Array or Hash'
     end
 
-    sql << " WHERE #{condition}" if condition.present?
+    sql << "WHERE #{condition}" if condition.present?
 
-    sql.join
+    sql.join(" ")
   end
 
   def sql_for_on_duplicate_key_update_as_array( table_name, locking_column, arr ) # :nodoc:
@@ -159,15 +161,15 @@ module ActiveRecord::Import::SQLite3Adapter
         ")"
       ]
 
-      sql << "WHERE #{index_predicate} " if index_predicate
+      sql << "WHERE #{index_predicate}" if index_predicate
 
-      sql.join
+      sql.join(" ")
     end
   end
 
   def sql_for_default_conflict_target( primary_key )
     conflict_target = Array(primary_key).join(', ')
-    "(#{conflict_target}) " if conflict_target.present?
+    "(#{conflict_target})" if conflict_target.present?
   end
 
   # Return true if the statement is a duplicate key record error
