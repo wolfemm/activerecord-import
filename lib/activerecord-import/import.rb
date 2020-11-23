@@ -1053,30 +1053,30 @@ class ActiveRecord::Base
       return nil if extra_keys.empty? && missing_keys.empty?
 
       if allow_extra_keys
-        <<-EOS
-Hash key mismatch.
+        <<~TEXT
+          Hash key mismatch.
 
-When importing an array of hashes with provided columns_names, each hash must contain keys for all column_names.
+          When importing an array of hashes with provided columns_names, each hash must contain keys for all column_names.
 
-Required keys: #{required_keys}
-Missing keys: #{missing_keys}
+          Required keys: #{required_keys}
+          Missing keys: #{missing_keys}
 
-Hash: #{hash}
-        EOS
+          Hash: #{hash}
+          TEXT
       else
-        <<-EOS
-Hash key mismatch.
+        <<~TEXT
+          Hash key mismatch.
 
-When importing an array of hashes, all hashes must have the same keys.
-If you have records that are missing some values, we recommend you either set default values
-for the missing keys or group these records into batches by key set before importing.
+          When importing an array of hashes, all hashes must have the same keys.
+          If you have records that are missing some values, we recommend you either set default values
+          for the missing keys or group these records into batches by key set before importing.
 
-Required keys: #{required_keys}
-Extra keys: #{extra_keys}
-Missing keys: #{missing_keys}
+          Required keys: #{required_keys}
+          Extra keys: #{extra_keys}
+          Missing keys: #{missing_keys}
 
-Hash: #{hash}
-        EOS
+          Hash: #{hash}
+        TEXT
       end
     end
   end

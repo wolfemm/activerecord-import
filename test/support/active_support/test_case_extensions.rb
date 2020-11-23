@@ -41,11 +41,11 @@ class ActiveSupport::TestCase
       text = toplevel ? description : "#{name} #{description}"
       klass = Class.new(self)
 
-      klass.class_eval <<-RUBY_EVAL
+      klass.class_eval <<~RUBY
         def self.name
           "#{text}"
         end
-      RUBY_EVAL
+      RUBY
 
       # do not inherit test methods from the superclass
       klass.class_eval do
